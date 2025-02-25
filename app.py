@@ -11,7 +11,7 @@ PHISHING_PATTERNS = [
     r'Vyhráli jste iPhone', r'Výhra čeká', r'Musíte jednat ihned', r'Vaše banka vás kontaktuje',
     r'Přihlaste se pro potvrzení platby', r'Zabezpečení účtu bylo kompromitováno', r'Váš účet bude zablokován',
     r'Aktuální platba nebyla provedena', r'Ověřte svou totožnost', r'Nesrovnalost ve vašem účtu',
-    r'Máte nový bezpečnostní upozornění', r'Zadejte své údaje pro ověření', r'Vaše karta byla zneužita',
+    r'Máte nové bezpečnostní upozornění', r'Zadejte své údaje pro ověření', r'Vaše karta byla zneužita',
     r'Poslední varování před deaktivací', r'Vaše zásilka nebyla doručena', r'Přístup k vašemu účtu byl omezen'
 ]
 
@@ -59,5 +59,4 @@ def analyze():
     return jsonify(result)
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    app.run(host='0.0.0.0', port=10000, debug=True)
