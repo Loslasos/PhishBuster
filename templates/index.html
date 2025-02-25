@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishBuster AI</title>
+    <style>
+        body {
+            font-family: "Courier New", monospace;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: url('https://source.unsplash.com/1600x900/?hacker,technology') no-repeat center center fixed;
+            background-size: cover;
+            color: #00ff00;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            display: inline-block;
+            margin-top: 50px;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            background: black;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+        }
+        button {
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #00ff00;
+            color: black;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .safe {
+            color: #00ff00;
+        }
+        .warning {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💻 PhishBuster AI 🛡️</h1>
+        <p>Vložte podezřelý text nebo odkaz a zjistěte, zda se jedná o phishing.</p>
+        
+        <input type="text" id="userInput" placeholder="Zadejte text nebo URL">
+        <button onclick="analyzeInput()">Analyzovat</button>
+        
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        function analyzeInput() {
+            let userInput = document.getElementById("userInput").value;
+            fetch("/analyze", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: userInput, url: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let resultDiv = document.getElementById("result");
+                if (data.phishing_detected) {
+                    resultDiv.innerHTML = "⚠️ Podezření na phishing!";
+                    resultDiv.className = "warning";
+                } else {
+                    resultDiv.innerHTML = "✅ Žádné hrozby nalezeny.";
+                    resultDiv.className = "safe";
+                }
+                if (!data.url_safe) {
+                    resultDiv.innerHTML += " ⚠️ Podezřelý odkaz!";
+                }
+            })
+            .catch(error => console.error("Chyba při analýze:", error));
+        }
+    </script>
+</body>
+</html>
+
