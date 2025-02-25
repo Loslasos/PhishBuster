@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, jsonify
+import csv
+import os
 import re
 import requests
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
@@ -17,6 +19,18 @@ PHISHING_PATTERNS = [
 
 # Regulární výraz pro detekci URL adresy
 URL_PATTERN = r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+'
+
+# Název datasetu
+DATASET_FILE = "dataset.csv"
+
+# Funkce pro uložení výsledků analýzy
+def save_to_dataset(text, prediction, user_feedback=None):
+    file_exists = os.path.isfile(DATASET_FILE)
+    with open(DATASET_FILE, mode='a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        if not file_exists:
+            writer.writerow(["text", "prediction", "user_feedback"])
+        writer.writerow([text, prediction, user_feedback])
 
 # API na ověření URL (příklad, použij VirusTotal nebo Google Safe Browsing)
 def check_url_safety(url):
@@ -56,7 +70,23 @@ def analyze():
         "url_safe": is_safe_url,
         "message": "⚠️ Podezření na phishing!" if is_phishing else "✅ Žádné hrozby nalezeny."
     }
+    
+    # Uložit výsledek do datasetu
+    save_to_dataset(text, "Phishing" if is_phishing else "Safe")
+    
     return jsonify(result)
+
+@app.route('/feedback', methods=['POST'])
+def feedback():
+    data = request.json
+    text = data.get("text", "")
+    user_feedback = data.get("user_feedback", "")
+    
+    # Uložit zpětnou vazbu od uživatele
+    save_to_dataset(text, "Corrected", user_feedback)
+    
+    return jsonify({"message": "Děkujeme za zpětnou vazbu!"})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
+
