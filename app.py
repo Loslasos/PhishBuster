@@ -1,4 +1,4 @@
-kdef save_to_db(text, classification, user_feedback=None):
+def save_to_db(text, classification, user_feedback=None):
     """Uloží zprávu do databáze nebo aktualizuje existující záznam."""
     try:
         conn = psycopg2.connect(DATABASE_URL)
