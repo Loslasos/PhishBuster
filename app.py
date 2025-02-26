@@ -15,7 +15,21 @@ if credentials_json:
     SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
     credentials = Credentials.from_service_account_info(credentials_info, scopes=SCOPES)
     client = gspread.authorize(credentials)
-    sheet = client.open_by_key("1KJLQ1ZKIxb443BZ1Rjc9JZ62eZaSan-uNBZ55NVcpXY").sheet1
+    try:
+        sheet = client.open_by_key("1KJLQ1ZKIxb443BZ1Rjc9JZ62eZaSan-uNBZ55NVcpXY").sheet1
+        print("✅ Úspěšně připojeno k Google Sheets!")
+    except gspread.exceptions.APIError as api_err:
+        print(f"❌ Google Sheets API error: {api_err}")
+        sheet = None
+    except gspread.exceptions.SpreadsheetNotFound:
+        print("❌ Chyba: Tabulka nebyla nalezena. Zkontroluj správnost ID!")
+        sheet = None
+    except PermissionError:
+        print("❌ Chyba: Nedostatečná oprávnění k přístupu do tabulky!")
+        sheet = None
+    except Exception as e:
+        print(f"❌ Neočekávaná chyba: {e}")
+        sheet = None
 else:
     sheet = None
     print("⚠️ GOOGLE_CREDENTIALS není nastaveno! Google Sheets nebude fungovat.")
@@ -93,3 +107,4 @@ def feedback():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
+
