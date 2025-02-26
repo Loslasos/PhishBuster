@@ -1,5 +1,5 @@
-import psycopg2
 import os
+import psycopg2
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -22,12 +22,15 @@ def save_to_db(text, classification, user_feedback=None):
     except Exception as e:
         print(f"❌ Chyba při zápisu do databáze: {e}")
 
+@app.route('/')
+def home():
+    return "✅ PhishBuster API běží! Použij /analyze pro analýzu textu."
+
 @app.route('/analyze', methods=['POST'])
 def analyze():
     data = request.json
     text = data.get("text", "")
 
-    # Zlepšená detekce phishingu
     phishing_keywords = [
         "výhra", "dárek", "klikněte zde", "ověřte účet", "přihlaste se", "gratuluji",
         "iphone", "zdarma", "akce", "investice", "rychlý zisk", "bankovní údaje",
@@ -35,10 +38,7 @@ def analyze():
         "bezplatná registrace", "vaše karta byla zablokována"
     ]
 
-    if any(word in text.lower() for word in phishing_keywords):
-        classification = "phishing"
-    else:
-        classification = "legit"
+    classification = "phishing" if any(word in text.lower() for word in phishing_keywords) else "legit"
 
     # Uložíme výsledek do databáze
     save_to_db(text, classification)
@@ -46,4 +46,5 @@ def analyze():
     return jsonify({"message": f"✅ Analyzováno: {classification}"})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000, debug=True)
+    port = int(os.environ.get("PORT", 10000))  # Render nastavuje PORT automaticky
+    app.run(host='0.0.0.0', port=port, debug=True)
