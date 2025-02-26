@@ -27,9 +27,18 @@ def analyze():
     data = request.json
     text = data.get("text", "")
 
-    # Základní jednoduchý model na analýzu
-    phishing_keywords = ["výhra", "dárek", "klikněte zde", "ověřte účet", "přihlaste se"]
-    classification = "phishing" if any(word in text.lower() for word in phishing_keywords) else "legit"
+    # Zlepšená detekce phishingu
+    phishing_keywords = [
+        "výhra", "dárek", "klikněte zde", "ověřte účet", "přihlaste se", "gratuluji",
+        "iphone", "zdarma", "akce", "investice", "rychlý zisk", "bankovní údaje",
+        "ověřovací kód", "získejte nyní", "exkluzivní nabídka", "vaše heslo vyprší",
+        "bezplatná registrace", "vaše karta byla zablokována"
+    ]
+
+    if any(word in text.lower() for word in phishing_keywords):
+        classification = "phishing"
+    else:
+        classification = "legit"
 
     # Uložíme výsledek do databáze
     save_to_db(text, classification)
