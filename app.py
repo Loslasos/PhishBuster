@@ -12,7 +12,8 @@ app = Flask(__name__)
 credentials_json = os.getenv("GOOGLE_CREDENTIALS")
 if credentials_json:
     credentials_info = json.loads(credentials_json)
-    credentials = Credentials.from_service_account_info(credentials_info)
+    SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+    credentials = Credentials.from_service_account_info(credentials_info, scopes=SCOPES)
     client = gspread.authorize(credentials)
     sheet = client.open_by_key("1KJLQ1ZKIxb443BZ1Rjc9JZ62eZaSan-uNBZ55NVcpXY").sheet1
 else:
@@ -92,4 +93,3 @@ def feedback():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
-
