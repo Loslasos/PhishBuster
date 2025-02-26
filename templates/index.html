@@ -3,91 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhishBuster AI</title>
+    <title>PhishBuster – Ochrana proti phishingu</title>
     <style>
         body {
-            font-family: "Courier New", monospace;
+            font-family: Arial, sans-serif;
             text-align: center;
-            margin: 0;
-            padding: 0;
-            background: url('https://source.unsplash.com/1600x900/?hacker,technology') no-repeat center center fixed;
-            background-size: cover;
-            color: #00ff00;
+            background-color: #121212;
+            color: white;
         }
-        .container {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-            display: inline-block;
+        h1 {
             margin-top: 50px;
         }
-        input, button {
-            margin: 10px;
-            padding: 10px;
-            font-size: 16px;
+        textarea {
             width: 80%;
-            background: black;
-            color: #00ff00;
-            border: 1px solid #00ff00;
+            height: 100px;
+            margin-top: 20px;
         }
         button {
+            background-color: #ff4757;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
             cursor: pointer;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #00ff00;
-            color: black;
         }
         #result {
+            font-size: 20px;
             margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
         }
-        .safe {
-            color: #00ff00;
-        }
-        .warning {
-            color: red;
+        .feedback-btn {
+            margin: 10px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #1e90ff;
+            border: none;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>💻 PhishBuster AI 🛡️</h1>
-        <p>Vložte podezřelý text nebo odkaz a zjistěte, zda se jedná o phishing.</p>
-        
-        <input type="text" id="userInput" placeholder="Zadejte text nebo URL">
-        <button onclick="analyzeInput()">Analyzovat</button>
-        
-        <div id="result"></div>
+    <h1>PhishBuster 🛡️</h1>
+    <p>Zadejte podezřelý text ke kontrole:</p>
+    <textarea id="inputText"></textarea>
+    <br>
+    <button onclick="analyzeText()">Analyzovat</button>
+    <p id="result"></p>
+    <div id="feedback" style="display:none;">
+        <p>Bylo rozhodnutí správné?</p>
+        <button class="feedback-btn" onclick="sendFeedback(true)">✅ Ano</button>
+        <button class="feedback-btn" onclick="sendFeedback(false)">❌ Ne</button>
     </div>
-    
+
     <script>
-        function analyzeInput() {
-            let userInput = document.getElementById("userInput").value;
+        function analyzeText() {
+            let text = document.getElementById("inputText").value;
             fetch("/analyze", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: userInput, url: userInput })
+                body: JSON.stringify({ text: text })
             })
             .then(response => response.json())
             .then(data => {
-                let resultDiv = document.getElementById("result");
-                if (data.phishing_detected) {
-                    resultDiv.innerHTML = "⚠️ Podezření na phishing!";
-                    resultDiv.className = "warning";
-                } else {
-                    resultDiv.innerHTML = "✅ Žádné hrozby nalezeny.";
-                    resultDiv.className = "safe";
-                }
-                if (!data.url_safe) {
-                    resultDiv.innerHTML += " ⚠️ Podezřelý odkaz!";
-                }
+                document.getElementById("result").innerHTML = data.message;
+                document.getElementById("feedback").style.display = "block";
+            });
+        }
+
+        function sendFeedback(isCorrect) {
+            let text = document.getElementById("inputText").value;
+            fetch("/feedback", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: text, correct: isCorrect })
             })
-            .catch(error => console.error("Chyba při analýze:", error));
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("feedback").innerHTML = "Děkujeme za zpětnou vazbu!";
+            });
         }
     </script>
 </body>
 </html>
-
